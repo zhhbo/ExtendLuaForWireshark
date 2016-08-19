@@ -33,8 +33,10 @@
         --函数预先扫描全表，提取short_abbr与name各自最大长度，设定对齐格式，重新生成fix_name
           "%-##s    %-##s    "
         --对于表中每个元素，函数将为之生成
-            ProtoField[ func ]( proto_pre_fix .. short_abbr, fix_name, ... );
-          当func未能识别时，默认使用uint32
+            field = ProtoField[ func ]( proto_pre_fix .. short_abbr, fix_name, ... );
+          当func未能识别时，默认使用string
+          允许func为FormatEx的子函数名，但如果不是ProtoField的子函数名时，默认仍为string
+          但在TreeAddEx时，处理不同
         --func无视大写，一律转换成小写格式
         --函数自动在表前添加如下默认元素
           {
@@ -67,6 +69,7 @@ local ProtoFieldShort =
   a   = "bytes",
   s   = "string",
   };
+
 function ProtoFieldEx( arg1, arg2 )
   --这个表转移进来是为了在非wireshark环境下初始化时不出错
   local ProtoFieldDefault =
@@ -133,7 +136,7 @@ function ProtoFieldEx( arg1, arg2 )
   --开始提取field type, abbr, name。同时修改name以使对齐显示。进而建立field
   for _, k in pairs( fs ) do
     local arg = fields[ k ];
-    local func = arg[ 1 ] or "uint32";
+    local func = arg[ 1 ] or "string";
     func = func:lower();
     func = ProtoFieldShort[ func ] or func; --简写转换
 
@@ -142,11 +145,19 @@ function ProtoFieldEx( arg1, arg2 )
     name = s2utf8( string.format( fmt, abbr, name ) );    --解决对齐问题
     
     local types = func;
-    local func = ProtoField[func] or ProtoField.uint32;
+    local exfunc;
+    local b, f = pcall( getmetatable( ProtoField )[ "__index" ], ProtoField, types );
+    if b then
+      func = f;
+    else
+      exfunc = types;
+      func = ProtoField.string;
+      types = "string";
+    end
     local field = func( pre_fix .. abbr, name, select( 4, table.unpack( arg ) ) );
 
     protofields[ abbr ] = field;
-    protofieldsex[ abbr ] = { types = types,  field = field };
+    protofieldsex[ abbr ] = { types = types,  field = field, exfunc = exfunc };
   end
   
   return protofieldsex, protofields;

@@ -34,7 +34,7 @@ function TXSSO2_Add2KeyChain( key_name, key )
 end
 
 function TXSSO2_MakeKeyName( CsCmdNo, Seq, FrameNum )
-  return string.format( "c%04Xs%04Xf%d", CsCmdNo, Seq, FrameNum );
+  return string.format( "c%04Xs%04Xf%u", CsCmdNo, Seq, FrameNum );
 end
 
 function TXSSO2_AnalysisKeyName( KeyName )
@@ -50,7 +50,7 @@ function TXSSO2_SetPsSaltKey( qq, ps )
   pssaltmd5:sa( ps:md5() );
   pssaltmd5:sd( 0 );
   pssaltmd5:sd( qq );
-  TXSSO2_Add2KeyChain( string.format( "PsSaltMd5_%d_%s", qq, ps ), pssaltmd5.line:md5() );
+  TXSSO2_Add2KeyChain( string.format( "PsSaltMd5_%u_%s", qq, ps ), pssaltmd5.line:md5() );
 end
 
 --预先添加默认的ECDH Key

@@ -1259,7 +1259,7 @@ DES解密：不对齐部分不解密，忽略之
     string    string:gzup     ( );        --gzip数据解压缩                  [-0, +1, v]
 
 --
-wireshark扩展版本 3.1
+wireshark扩展版本 4.0
 
 
 -------- -------- -------- --------
@@ -1311,8 +1311,14 @@ wireshark扩展版本 3.1
   int64;              --0x0000000000000000(0)
 
   bool;               --true|false
-  ipv4;               --0.0.0.0
-  ipv4_port;          --0.0.0.0:0
+  ipv4;               --hostname(0.0.0.0)
+                        0.0.0.0         //当hostname无法确定显示
+  ipv4_port;          --hostname:port(0.0.0.0:0)
+                        0.0.0.0:0       //当hostname无法确定显示
+                        
+  xipv4_port;         --hostname:port(0.0.0.0:0)
+                        0.0.0.0:0       //当hostname无法确定显示
+                                        //字节顺序用于标示port，注意ip的字节与port相反
   float;              --0.0             //无视大小端
   string;             --00000           //size <= 0时，取剩余所有数据
   bytes;              --000000          //size <= 0时，取剩余所有数据
@@ -1327,6 +1333,12 @@ wireshark扩展版本 3.1
   bxline_bytes;       bline_bytes;
   wxline_bytes;       wline_bytes;
   dxline_bytes;       dline_bytes;
+
+  xdate               --0000/00/00 00:00:00
+  xtime               --00day 00:00:00
+  xcapacity           --0.00T|0.00G|0.00M|0.00K|0.00B
+
+  注意，当string或bytes类型数据过大时，会返回第三个数据截断结果，如0000...
 
 
 
@@ -1364,8 +1376,10 @@ wireshark扩展版本 3.1
         --函数预先扫描全表，提取short_abbr与name各自最大长度，设定对齐格式，重新生成fix_name
           "%-##s    %-##s    "
         --对于表中每个元素，函数将为之生成
-            ProtoField[ func ]( proto_pre_fix .. short_abbr, fix_name, ... );
-          当func未能识别时，默认使用uint32
+            field = ProtoField[ func ]( proto_pre_fix .. short_abbr, fix_name, ... );
+          当func未能识别时，默认使用string
+          允许func为FormatEx的子函数名，但如果不是ProtoField的子函数名时，默认仍为string
+          但在TreeAddEx时，处理不同
         --func无视大写，一律转换成小写格式
         --函数自动在表前添加如下默认元素
           {

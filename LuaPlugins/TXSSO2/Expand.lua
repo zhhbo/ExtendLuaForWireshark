@@ -5,8 +5,6 @@
 
 ]=======]
 
-
-
 local dissectors = require "TXSSO2/Dissectors";
 
 local proto = require "TXSSO2/Proto";
@@ -17,48 +15,29 @@ local fields = require "TXSSO2/Fields";
 local fieldsex, fields = unpack( fields );
 
 local tagname = require "TXSSO2/TagName";
-local aly_lvl = require "TXSSO2/AnalysisLevel";
 
-function dissectors.format_qqbuf( buf, off )
-  local data, size = FormatEx.wxline_string( buf, off );
-  local ss = string.format( "(%04X)%s", #data, data:sub( 1, 0x18 ):hex2str() );
-  if #data > 0x18 then
-    ss = ss .. "...";
+--用于以seq关联数据包
+local ref_tb = {};
+function dissectors.ref_seq( root, pkg, buf, seq )
+  local f = pkg.number;
+  ref_tb[ seq ] = ref_tb[ seq ] or {};
+  local tb = ref_tb[ seq ];
+  tb[ f ] = tb[ f ] or true;
+
+  for k, _ in pairs( tb ) do
+    if k ~= f then
+      root:add( fieldsex.refframe.field, k );
+    end
   end
-  return ss, size;
-end
-
-function dissectors.format_qqstring( buf, off )
-  local data, size = FormatEx.wxline_string( buf, off );
-  local ss = string.format( "(%04X)%s", #data, data:sub( 1, 0x18 ) );
-  if #data > 0x18 then
-    ss = ss .. "...";
-  end
-  return ss, size;
-end
-
-function dissectors.format_time( buf, off )
-  local t = buf( off, 4 ):uint();
-  local ss = os.date('%Y/%m/%d %H:%M:%S', t) .. string.format( '(0x%08X)', t );
-  return ss, 4;
-end
-
-function dissectors.keyframe( root, n )
-  root:add( fieldsex.keyframe.field, n );
 end
 
 function dissectors.add( ... )
   return TreeAddEx( fieldsex, ... );
 end
 
-function dissectors.addex( t, buf, off, size )
-  if size <= 0 then
-    return off;
-  end
-  return TreeAddEx( fieldsex, t, buf, off, ">unsolved", size );
-end
+function dissectors.try_decrypt( root, pkg, buf, info, just_try )
+  local data = buf:raw();
 
-function dissectors.TeanDecrypt( data )
   local refkeyname,refkey, ds;
   for k, v in pairs( keychain ) do
     ds = TeanDecrypt( data, v );
@@ -68,34 +47,67 @@ function dissectors.TeanDecrypt( data )
       break;
     end
   end
-  return refkeyname,refkey, ds;
+
+  if ds == nil or #ds == 0 then
+    if not just_try then
+      root:add( proto, buf(), string.format( info .. " [%04X] 解密失败！！！！", buf:len() ) );
+    end
+    return;
+  end
+
+  info = info .. string.format( " [%04X] >> [%04X]       With Key", buf:len(), #ds );
+  
+  local c, s, n = TXSSO2_AnalysisKeyName( refkeyname );
+  if c then
+    if n == tostring( pkg.number ) then
+      info = info .. "    by frame self ↑↑↑";
+      n = nil;
+    else
+      info = info .. ":" .. refkey:hex2str( true ) .. "       form FrameNum:" .. n;
+    end
+  else
+    info = info .. "[" .. refkeyname .. "]:" .. refkey:hex2str( true );
+    n = refkeyname:match( "^f(%d+)_" );
+  end
+  local t = root:add( proto, buf(), info );
+  if n then
+    t:add( fieldsex.keyframe.field, tonumber( n ) );
+  end
+
+  return t, ds;
 end
 
-function dissectors.dis_tlv( buf, pkg, root, t, off, size )
-  local oo = off;
-  
-  local lvl = aly_lvl();
+function dissectors.dis_tlv( buf, pkg, root, t )
+  local size = buf:len();
+  local off = 0;
 
-  while off - oo < size do
+  local func = dissectors.tlv;
+  if not func then
+    root:add( proto, "Dissectors无TLV" );
+  end
+
+  while off < size do
     local tag = buf( off + 0, 2 ):uint();
     local len = buf( off + 2, 2 ):uint();
     local tags = tagname[ tag ] or "UnknownTag";
-    local info = string.format( ">>TLV_%04X_%-20s     lenght : %04X", tag, tags, len );
+    local info = string.format( ">>TLV_%04X_%-20s     length : %04X", tag, tags, len );
 
     local tt = t:add( proto, buf( off, 2 + 2 + len ), info );
-    if lvl >= alvlC then
-      local func = dissectors.tlv;
+    local func = dissectors.tlv;
+    if func then
+      local tlv = buf( off + 2 + 2, len ):tvb();
+      func = func[ tag ];
       if func then
-        func = func[ tag ];
-        if func then
-          if not pcall( func, buf, pkg, root, tt, off + 2 + 2, len ) then
-            TreeAddEx( fieldsex, tt, buf( off + 2 + 2, len ), ">unsolved", len );
-          end
+        local b, ret = pcall( func, tlv, pkg, root, tt );
+        if not b then
+          root:add( proto, "TLV_" .. string.format( "%04X", tag ) .. "解析失败:" .. ret );
         else
-          root:add( proto, "TXSSO Dissectors无对应TLV" .. string.format( "%04X", tag ) );
+          if ret < tlv:len() then
+            TreeAddEx( fieldsex, tt, tlv, ret, ">unsolved" );
+          end
         end
       else
-        root:add( proto, "TXSSO Dissectors无TLV" );
+        root:add( proto, tlv(), "Dissectors无对应TLV_" .. string.format( "%04X", tag ) );
       end
     end
     off = off + 2 + 2 + len;

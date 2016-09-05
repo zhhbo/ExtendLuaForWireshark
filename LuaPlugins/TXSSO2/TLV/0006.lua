@@ -12,22 +12,13 @@ dissectors.tlv = dissectors.tlv or {};
 
 local proto = require "TXSSO2/Proto";
 
-dissectors.tlv[0x0006] = function( buf, pkg, root, t, off, size )
-  local data = buf:raw( off, size );
+dissectors.tlv[0x0006] = function( buf, pkg, root, t )
+  local tt, ds = dissectors.try_decrypt( t, pkg, buf, "TGTGT" );
 
-  local refkeyname,refkey, ds = dissectors.TeanDecrypt( data );
-  if ds == nil or #ds == 0 then
-    t:add( buf( off, size ), "TGTGT解密失败！！！！" );
+  if not tt then
     return;
   end
-
-  local info = string.format(
-    "TGTGT [%04X] >> [%04X]       With Key",
-    size,
-    ds:len()
-    );
-  info = info .. "[" .. refkeyname .. "]:" .. refkey:sub( 1, 0x10 ):hex2str( true );
-  local tt = t:add( proto, buf( off, size ), info );
+  local oo = buf:len();
 
   buf = ByteArray.new( ds, true ):tvb( "TGTGT" );
 
@@ -36,26 +27,28 @@ dissectors.tlv[0x0006] = function( buf, pkg, root, t, off, size )
   
   if ver == 0x0002 then
     off = dissectors.add( tt, buf, off,
-      ">*dwRand随机值 D",
-      ">wTlvVer W",
-      ">dwUin D",
-      ">dwSSOVersion D",
-      ">dwServiceId D",
-      ">dwClientVer D",
-      ">*const_0 W",
+      ">*dwRand随机值     D",
+      ">wTlvVer           W",
+      ">dwUin             D",
+      ">dwSSOVersion      D",
+      ">dwServiceId       D",
+      ">dwClientVer       D",
+      ">*const_0          W",
       ">bRememberPwdLogin B",
-      ">bufPsMD5", 0x10,
-      ">dwServerTime D", dissectors.format_time,
-      ">*const_0 bytes", 0xD,
-      ">dwClientWanIP D",
-      ">dwISP D",
-      ">dwIDC D",
-      ">bufComputerID", dissectors.format_qqbuf
+      ">bufPsMD5",        0x10,
+      ">dwServerTime      xdate",
+      ">*const_0          bytes", 0xD,
+      ">dwClientWanIP     D",
+      ">dwISP             D",
+      ">dwIDC             D",
+      ">bufComputerID     wxline_bytes"
       );
     local key = buf:raw( off, 0x10 );
     TXSSO2_Add2KeyChain( string.format( "f%d_TGTGTKey", pkg.number ), key );
     off = dissectors.add( tt, buf, off, ">bufTGTGTKey", 0x10 );
   end
-  
-  dissectors.addex( tt, buf, off, buf:len() - off );
+  if off < buf:len() then
+    TreeAddEx( fieldsex, t, buf, off, ">unsolved" );
+  end
+  return oo;
 end

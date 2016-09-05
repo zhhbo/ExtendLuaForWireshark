@@ -404,6 +404,7 @@ LUALIB_API lua_Unsigned luaL_checkunsigned (lua_State *L, int narg) {
 }
 
 
+
 LUALIB_API lua_Integer luaL_optinteger (lua_State *L, int narg,
                                                       lua_Integer def) {
   return luaL_opt(L, luaL_checkinteger, narg, def);

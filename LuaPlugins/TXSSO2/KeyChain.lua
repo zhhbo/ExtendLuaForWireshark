@@ -9,6 +9,10 @@
 
 KeyChain中的KeyName不允许重复
 KeyChain中的Key参与解密时，无论长度如何，都将固定为0x10，长度不足，以\0补齐，长度过长，则截断
+KeyChain只允许添加，不允许删除。
+默认KeyChain初始时只存在两个默认的ECDH KEY。这两个KEY对于插件，是【永久存在】的。
+所有使用接口向KeyChain添加的KEY都是临时的，只对【当前WireShark进程】有效。
+如果你需要某KEY永久生效，请自行修改源脚本。
 ]=======]
 local keychain = {};
 
@@ -30,15 +34,21 @@ function TXSSO2_Add2KeyChain( key_name, key )
   if type( key ) ~= "string" then
     return error( "加入KeyChain的Key必须为string类型" );
   end
+  if #key < 0x10 then
+    key = key .. string.rep( '\x00', 0x10 - #key );
+  end
+  if #key > 0x10 then
+    key = key:sub( 1, 0x10 );
+  end
   keychain[ key_name ] = key;
 end
 
 function TXSSO2_MakeKeyName( CsCmdNo, Seq, FrameNum )
-  return string.format( "c%04Xs%04Xf%u", CsCmdNo, Seq, FrameNum );
+  return string.format( "c%04X_s%04X_f%u", CsCmdNo, Seq, FrameNum );
 end
 
 function TXSSO2_AnalysisKeyName( KeyName )
-  return KeyName:match( "c(%x%x%x%x)s(%x%x%x%x)f(%d+)" );
+  return KeyName:match( "c(%x%x%x%x)_s(%x%x%x%x)_f(%d+)" );
 end
 
 function TXSSO2_SetPsSaltKey( qq, ps )

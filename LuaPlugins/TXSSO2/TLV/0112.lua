@@ -10,6 +10,6 @@ local dissectors = require "TXSSO2/Dissectors";
 
 dissectors.tlv = dissectors.tlv or {};
 
-dissectors.tlv[0x0112] = function( buf, pkg, root, t, off, size )
-  dissectors.add( t, buf, off, ">bufSigClientAddr", size );
+dissectors.tlv[0x0112] = function( buf, pkg, root, t )
+  return dissectors.add( t, buf, 0, ">bufSigClientAddr" );
 end

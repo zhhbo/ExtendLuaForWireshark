@@ -274,7 +274,7 @@ local function get_line_string( ls, x, tvb, off, size, func, root )
 
   local ss = tvb:raw( off + ls, size - x );;
 
-  return sss, size + ls - x, string.format( fmt, #ss ) .. LimitString( ss );
+  return ss, size + ls - x, string.format( fmt, #ss ) .. LimitString( ss );
 end
 
 function FormatEx.bxline_string( tvb, off, size, func, root )

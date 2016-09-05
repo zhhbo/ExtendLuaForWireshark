@@ -16,8 +16,9 @@ local fields =
     
     { "string",       "NullBuf",                                               },
     { "string",       "UnknowBuf",                                             },
-
+    
     { "framenum",     "keyframe",               "Key源Frame号",       base.NONE },
+    { "framenum",     "refframe",               "关联Frame号",        base.NONE },
     
     { "uint8",        "cPreFix",                "协议前缀",           base.HEX },
     { "uint8",        "cSufFix",                "协议后缀",           base.HEX },
@@ -42,8 +43,7 @@ local fields =
     { "uint8",        "cResult",                "响应码",             base.HEX, RetCode },
     { "bytes",        "bufSigClientAddr",                                      },
     { "string",       "dwServerTime",           "服务器时间"                   },
-    { "ipv4",         "dwClientWanIP",          "客户端外网地址"               },
-    { "uint16",       "wClientWanPort",         "客户端外网端口",     base.DEC_HEX },
+    { "string",       "ClientWanIP",            "客户端外网地址"               },
     { "uint32",       "dwIDC",                  "IDC",                base.HEX },
     { "uint32",       "dwISP",                  "ISP",                base.HEX },
     { "uint16",       "wRedirectPort",          "重定向端口",         base.DEC_HEX },
@@ -74,7 +74,7 @@ local fields =
     { "bytes",        "buf16bytesGTKey_ST",     "16bytesGTKey_ST"              },
     { "string",       "bufServiceTicket",       "ServiceTicket"                },
     { "bool",         "bAllowPtlogin",          "AllowPtlogin"                 },
-    { "bytes",        "buf16bytesGTKey_STHttp", "16bytesGTKey_STHttp"          },
+    { "string",       "buf16bytesGTKey_STHttp", "16bytesGTKey_STHttp"          },
     { "string",       "bufServiceTicketHttp",   "ServiceTicketHttp"            },
     { "bytes",        "bufGTKey_TGTPwd",        "GTKey_TGTPwd"                 },
     { "uint16",       "wSSO_Account_wFaceIndex","头像索引",           base.HEX },

@@ -10,8 +10,8 @@ local dissectors = require "TXSSO2/Dissectors";
 
 dissectors.tlv = dissectors.tlv or {};
 
-dissectors.tlv[0x000C] = function( buf, pkg, root, t, off, size )
-  local oo = off;
+dissectors.tlv[0x000C] = function( buf, pkg, root, t )
+  local off = 0;
   local ver = buf( off, 2 ):uint();
   off = dissectors.add( t, buf, off, ">wTlvVer W" );
   if ver == 0x0001 then
@@ -26,11 +26,9 @@ dissectors.tlv[0x000C] = function( buf, pkg, root, t, off, size )
       ">xxoo_w",
       ">dwIDC D",
       ">dwISP D",
-      ">dwRedirectIP D",
-      ">wRedirectPort W",
+      ">*重定向地址 ipv4_port",
       ">xxoo_d"
       );
   end
-
-  dissectors.addex( t, buf, off, size - ( off - oo ) );
+  return off;
 end

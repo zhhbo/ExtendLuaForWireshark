@@ -17,8 +17,8 @@ local GuidName =
   [6] = "bufMachineInfoGuid",
   }
 
-dissectors.tlv[0x0313] = function( buf, pkg, root, t, off, size )
-  local oo = off;
+dissectors.tlv[0x0313] = function( buf, pkg, root, t )
+  local off = 0;
   local ver = buf( off, 1 ):uint();
   off = dissectors.add( t, buf, off, ">*cSubVer B" );
   if ver == 0x01 then
@@ -29,10 +29,10 @@ dissectors.tlv[0x0313] = function( buf, pkg, root, t, off, size )
       off = dissectors.add( t, buf, off, ">*GUID索引号 B" );
       local name = GuidName[ n ] or ( "Unknow" .. n );
       off = dissectors.add( t, buf, off,
-        ">*" .. name .. " string", dissectors.format_qqbuf,
+        ">*" .. name .. " wxline_bytes",
         ">*建立耗时(ms) D"
         );
     end
   end
-  dissectors.addex( t, buf, off, size - ( off - oo ) );
+  return off;
 end

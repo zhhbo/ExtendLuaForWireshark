@@ -64,9 +64,9 @@ local fields =
     { "string",       "bufBill",                "Bill"                         },
     { "uint32",       "dwTGTServiceID",         "TGTServiceID",       base.HEX },
     { "uint32",       "dwTGTPriority",          "TGT优先权值",        base.HEX },
-    { "relative_time","dwTGTRefreshInterval",   "TGT刷新间隔"                  },
-    { "relative_time","dwTGTValidInterval",     "TGT有效时长"                  },
-    { "relative_time","dwTGTTryInterval",       "TGT尝试间隔"                  },
+    { "string",       "dwTGTRefreshInterval",   "TGT刷新间隔"                  },
+    { "string",       "dwTGTValidInterval",     "TGT有效时长"                  },
+    { "string",       "dwTGTTryInterval",       "TGT尝试间隔"                  },
     { "uint16",       "wTGTTryCount",           "TGT尝试次数",        base.DEC },
     { "bytes",        "bufTGT_GTKey",           "TGT_GTKey"                    },
     { "string",       "bufTGT",                 "TGT"                          },
@@ -89,6 +89,9 @@ local fields =
     { "uint8",        "QdFlag",                 "QdFlag",             base.HEX },
     { "uint16",       "wErrorCode",             "错误代码",           base.HEX },
     { "string",       "ErrorMsg",               "错误信息"                     },
+    { "string",       "buf32byteValueAddedSignature", "增值签名"               },
+    { "string",       "buf12byteUserBitmap",    "用户身份对照表"               },
+
 
     { "bytes",        "bufControl",             "Control"                      },
 

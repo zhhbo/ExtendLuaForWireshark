@@ -25,9 +25,9 @@ dissectors.tlv[0x0107] = function( buf, pkg, root, t )
     local oo = dissectors.add( tt, data, 2,
       ">dwTGTServiceID        D",
       ">dwTGTPriority         D",
-      ">dwTGTRefreshInterval  D",
-      ">dwTGTValidInterval    D",
-      ">dwTGTTryInterval      D",
+      ">dwTGTRefreshInterval  xtime",
+      ">dwTGTValidInterval    xtime",
+      ">dwTGTTryInterval      xtime",
       ">wTGTTryCount          W",
       ">unsolved"
       );

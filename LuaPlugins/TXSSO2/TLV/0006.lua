@@ -38,7 +38,7 @@ dissectors.tlv[0x0006] = function( buf, pkg, root, t )
       ">bufPsMD5",        0x10,
       ">dwServerTime      xdate",
       ">*const_0          bytes", 0xD,
-      ">dwClientWanIP     D",
+      ">ClientWanIP       ipv4",
       ">dwISP             D",
       ">dwIDC             D",
       ">bufComputerID     wxline_bytes"

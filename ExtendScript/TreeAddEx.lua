@@ -126,24 +126,48 @@ local FieldShort =
   S   = "string",
   };
 
-local function TreeAddEx_AddOne( arg, k, root, tvb, off, protofieldsex )
-  local abbr = arg[ k ];      k = k + 1;
+local function TreeAddEx_FormatIt( format_func, tvb, off, size, tree_add_func, root, field, k )
+  local msg, size, limit_msg = format_func( tvb, off, size, tree_add_func, root, field );
+  --如果格式化函数内部处理完毕，则不再继续
+  if not size then
+    size = msg;
+    return size, k;
+  end
+  --size不对，也不进行后续处理
+  if size < 0 then
+    return off, k;
+  end
+  --否则进行默认添加
+  --如果存在限长结果，则优先采用结果
+  msg = limit_msg or msg;
+  if "string" == type( field ) then
+    tree_add_func( root, tvb( off, size ), field .. msg );
+  else
+    tree_add_func( root, field, tvb( off, size ), msg );
+  end
+  return off + size, k;
+end
 
-  local func = root.add;
+local function TreeAddEx_AddOne( arg, k, root, tvb, off, protofieldsex )
+  --获取数据描述
+  local abbr = arg[ k ];      k = k + 1;
+  
   --判定大小端
+  local tree_add_func = root.add;
   local isnet = abbr:sub(1, 1);
   if isnet == '<' then
-    func = root.add_le;
+    tree_add_func = root.add_le;
     abbr = abbr:sub( 2 );
   elseif isnet == '>' then
     abbr = abbr:sub( 2 );
   end
 
-  local abbr, fmttype = abbr:match( "([^ ]+) *([^ ]*)" );
+  --分离abbr与类型描述
+  local abbr, format_type = abbr:match( "([^ ]+) *([^ ]*)" );
 
   --尝试类型简写转换
-  if FieldShort[ fmttype ] then
-    fmttype = FieldShort[ fmttype ];
+  if FieldShort[ format_type ] then
+    format_type = FieldShort[ format_type ];
   end
 
   --空串忽略
@@ -151,112 +175,87 @@ local function TreeAddEx_AddOne( arg, k, root, tvb, off, protofieldsex )
     return off, k;
   end
 
+  --从fields里识别abbr，当abbr不可识别时，field为伪前缀
   local tb = protofieldsex[ abbr ];
   local field;
   if tb then
     field = tb.field;
   else
-    --当abbr不可识别时，field为伪前缀
     field = string.format( protofieldsex.__fmt, "-", abbr:utf82s() ):s2utf8();
   end
 
-  local kk = arg[ k ];
-  local types = type( kk );
+  local next_abbr = arg[ k ];
+  local next_abbr_type = type( next_abbr );
   --如果有指定格式化函数，则使用之
-  if types == "function" then
-    local ss, size, sss = kk( tvb, off, nil, func, root, field );
-    --如果格式化函数内部处理完毕，则不再继续
-    if not size or size <= 0 then
-      return ss, k + 1;
-    end
-    ss = sss or ss;
-    --否则进行默认添加
-    if tb then
-      func( root, field, tvb( off, size ), ss );
-    else
-      func( root, tvb( off, size ), field .. ss );
-    end
-    return off + size, k + 1;
+  if next_abbr_type == "function" then
+    return TreeAddEx_FormatIt( next_abbr, tvb, off, nil, tree_add_func, root, field, k + 1 );
   end
 
+  --开始优先处理可识别的abbr
   if tb then
-    if types == "number" then
-      if kk <= 0 then
+    --abbr被指定大小
+    local abbr_size = next_abbr;
+    if next_abbr_type == "number" then
+      if abbr_size < 0 then
         return off, k + 1;
       end
       if not tb.exfunc then
-        func( root, field, tvb( off, kk ) );
-        return off + kk, k + 1;
+        --abbr有标准类型
+        tree_add_func( root, field, tvb( off, abbr_size ) );
+        return off + abbr_size, k + 1;
       end
-      local ss, size, sss = FormatEx[ tb.exfunc ]( tvb, off, kk, func, root, field );
-      ss = sss or ss;
-      func( root, field, tvb( off, kk ), ss );
-      return off + kk, k + 1;
+      local msg, size, limit_msg = FormatEx[ tb.exfunc ]( tvb, off, abbr_size, tree_add_func, root, field );
+      msg = limit_msg or msg;
+      tree_add_func( root, field, tvb( off, size ), msg );
+      return off + abbr_size, k + 1;
     end
 
     --如果未有指定，则尝试使用默认大小
-    local size = TypeDefaultSize[ tb.types ];
-    if size then
-      func( root, field, tvb( off, size ) );
-      return off + size, k;
+    local abbr_size = TypeDefaultSize[ tb.types ];
+    if abbr_size then
+      tree_add_func( root, field, tvb( off, abbr_size ) );
+      return off + abbr_size, k;
     end
 
     --如果没有指定大小，也未指定类型或格式化
-    if not fmttype or fmttype == "" then
+    if not format_type or format_type == "" then
+      --尝试使用标准类型，或额外的格式化
       if not tb.exfunc then
-        func( root, field, tvb( off ) );
+        tree_add_func( root, field, tvb( off ) );
         return tvb:len(), k;
       end
-      local ss, size, sss = FormatEx[ tb.exfunc ]( tvb, off, nil, func, root, field );
-      ss = sss or ss;
-      func( root, field, tvb( off, size ), ss );
+      local msg, size, limit_msg = FormatEx[ tb.exfunc ]( tvb, off, nil, tree_add_func, root, field );
+      msg = limit_msg or msg;
+      tree_add_func( root, field, tvb( off, size ), msg );
       return off + size, k;
     end
 
     --尝试识别指定类型，如果指定类型不可识别，则使用abbr的类型或bytes
-    fmttype = FormatEx[ fmttype ];
-    if not fmttype then
-      fmttype = FormatEx[ tb.types ] or FormatEx.bytes;
+    local format_func = FormatEx[ format_type ];
+    if not format_func then
+      format_func = FormatEx[ tb.types ] or FormatEx.bytes;
     end
-    
-    local ss, size, sss = fmttype( tvb, off, nil, func, root, field );
-    if not size or size <= 0 then
-      return ss, k;
-    end
-    ss = sss or ss;
-    func( root, field, tvb( off, size ), ss );
-    return off + size, k;
+
+    return TreeAddEx_FormatIt( format_func, tvb, off, nil, tree_add_func, root, field, k );
   end
 
   --abbr不可识别时，除非另外指定格式化函数，否则必须指定类型，且类型可格式化
-  local tps = fmttype;
-  if not fmttype or fmttype == "" then
+  if not format_type or format_type == "" then
     return error( "abbr:" .. abbr .. " no fixed and no type" );
   end
-  if not FormatEx[ fmttype ] then
-    return error( "abbr:" .. abbr .. ", type:" .. fmttype .. " no fixed and type unknown" );
+  local format_func = FormatEx[ format_type ];
+  if not format_func then
+    return error( "abbr:" .. abbr .. ", type:" .. format_type .. " no fixed and type unknown" );
   end
-  fmttype = FormatEx[ fmttype ];
 
   --如果有指定大小，则使用指定大小
-  if types == "number" then
-    local size = kk;
-    local ss, size, sss = fmttype( tvb, off, size, func, root, field );
-    if not size or size <= 0 then
-      return ss, k + 1;
-    end
-    ss = sss or ss;
-    func( root, tvb( off, size ), field .. ss );
-    return off + size, k + 1;
+  local abbr_size;
+  if next_abbr_type == "number" then
+    abbr_size = next_abbr;
+    k = k + 1;
   end
-  
-  local ss, size, sss = fmttype( tvb, off, nil, func, root, field );
-  if not size or size <= 0 then
-    return ss, k;
-  end
-  ss = sss or ss;
-  func( root, tvb( off, size ), field .. ss );
-  return off + size, k;
+
+  return TreeAddEx_FormatIt( format_func, tvb, off, abbr_size, tree_add_func, root, field, k );
 end
 
 function TreeAddEx( protofieldsex, root, tvb, off, ... )

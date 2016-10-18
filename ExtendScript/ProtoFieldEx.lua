@@ -37,6 +37,8 @@
           当func未能识别时，默认使用string
           允许func为FormatEx的子函数名，但如果不是ProtoField的子函数名时，默认仍为string
           但在TreeAddEx时，处理不同
+          如：
+          { "wxline_string", "wxline_msg", "MSG" }  --wxline_msg被处理成string
         --func无视大写，一律转换成小写格式
         --函数自动在表前添加如下默认元素
           {

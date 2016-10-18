@@ -1,4 +1,4 @@
-xlua版本 4.1
+xlua版本 4.2
 
 
 -------- -------- -------- --------
@@ -364,6 +364,28 @@ DES解密：不对齐部分不解密，忽略之
     string    des.ncbc.p7dec             ( ... );                     [-2|3|4, +1, c|v]
     string    string:des_ncbc_p7_enc     ( ... );                       [-1|2|3, +1, c]
     string    string:des_ncbc_p7_dec     ( ... );                     [-1|2|3, +1, c|v]
+
+    
+    string    des_ecb3_pkcs7padding_encrypt
+                                        (
+                                        string data,
+                                        string key
+                                        [,
+                                        int    block_size = 8
+                                        ]
+                                        );                                [-2|3, +1, c]
+    string    des_ecb3_pkcs7padding_decrypt
+                                        (
+                                        string data,
+                                        string key
+                                        [,
+                                        int    block_size = 8
+                                        ]
+                                        );                              [-2|3, +1, c|v]
+    string    des.ecb3.p7enc             ( ... );                         [-2|3, +1, c]
+    string    des.ecb3.p7dec             ( ... );                       [-2|3, +1, c|v]
+    string    string:des_ecb3_p7_enc     ( ... );                         [-1|2, +1, c]
+    string    string:des_ecb3_p7_dec     ( ... );                       [-1|2, +1, c|v]
     -------- -------- -------- -------- 
     string    des_ecb_encrypt
                                         (
@@ -431,6 +453,28 @@ DES解密：不对齐部分不解密，忽略之
     string    des.ncbc.dec            ( ... );                        [-2|3|4, +1, c|v]
     string    string:des_ncbc_enc     ( ... );                          [-1|2|3, +1, c]
     string    string:des_ncbc_dec     ( ... );                        [-1|2|3, +1, c|v]
+
+    string    des_ecb3_encrypt
+                                        (
+                                        string data,
+                                        string key
+                                        [,
+                                        int    block_size = 8
+                                        ]
+                                        );                                [-2|3, +1, c]
+    string    des_ecb3_decrypt
+                                        (
+                                        string data,
+                                        string key
+                                        [,
+                                        int    block_size = 8
+                                        ]
+                                        );                              [-2|3, +1, c|v]
+    string    des.ecb3.enc            ( ... );                            [-2|3, +1, c]
+    string    des.ecb3.enc            ( ... );                          [-2|3, +1, c|v]
+    string    string:des_ecb3_enc     ( ... );                            [-1|2, +1, c]
+    string    string:des_ecb3_dec     ( ... );                          [-1|2, +1, c|v]
+
 
 
 
@@ -484,7 +528,7 @@ DES解密：不对齐部分不解密，忽略之
 
                               
     string.hexs = string.str2hexs;
-    string.shwo = string.hex2show;
+    string.show = string.hex2show;
 
 
 
@@ -513,6 +557,8 @@ DES解密：不对齐部分不解密，忽略之
 -------- -------- -------- --------
             mem操作
 -------- -------- -------- --------
+
+所有指针以interger形式传输，而不是采用light userdata形式，是考虑指针运算，格式化输出等便利
 
 
 
@@ -607,6 +653,29 @@ DES解密：不对齐部分不解密，忽略之
     int       bswap_word      ( int value );                                [-1, +1, c]
     int       bswap_dword     ( int value );                                [-1, +1, c]
     int       bswap_qword     ( int value );                                [-1, +1, c]
+
+
+
+●
+    void*     hook            (
+                              void*     hookmem,
+                              int       hooksize,
+                              string    data_descibe,
+                              string    len_descibe,
+                              bool      docodeend
+                              );                                        [-5, +1, c|e|v]
+        --Hook2Log 地址
+    void*     hook            (
+                              void*     hookmem,
+                              string    data_descibe,
+                              string    len_descibe,
+                              bool      calltable_offset,
+                              bool      docallend
+                              );                                        [-5, +1, c|e|v]
+        --Hook2Log 偏移或跳转表
+
+    void      unhook          ( void*   node );                         [-1, +0, c|e|v]
+        --当unhook不给node参数时，卸载全部hook
 
 
 
@@ -1259,7 +1328,7 @@ DES解密：不对齐部分不解密，忽略之
     string    string:gzup     ( );        --gzip数据解压缩                  [-0, +1, v]
 
 --
-wireshark扩展版本 4.0
+wireshark扩展版本 4.1
 
 
 -------- -------- -------- --------
@@ -1299,44 +1368,44 @@ wireshark扩展版本 4.0
 
 
 ●
-  uint8;              --0x00(0)
-  uint16;             --0x0000(0)
-  uint24;             --0x000000(0)
-  uint32;             --0x00000000(0)
-  uint64;             --0x0000000000000000(0)
-  int8;               --0x00(0)
-  int16;              --0x0000(0)
-  int24;              --0x000000(0)
-  int32;              --0x00000000(0)
-  int64;              --0x0000000000000000(0)
+  uint8;              --0x00(0)                     1 byte
+  uint16;             --0x0000(0)                   2 byte
+  uint24;             --0x000000(0)                 3 byte
+  uint32;             --0x00000000(0)               4 byte
+  uint64;             --0x0000000000000000(0)       8 byte
+  int8;               --0x00(0)                     1 byte
+  int16;              --0x0000(0)                   2 byte
+  int24;              --0x000000(0)                 3 byte
+  int32;              --0x00000000(0)               4 byte
+  int64;              --0x0000000000000000(0)       8 byte
 
-  bool;               --true|false
-  ipv4;               --hostname(0.0.0.0)
-                        0.0.0.0         //当hostname无法确定显示
-  ipv4_port;          --hostname:port(0.0.0.0:0)
-                        0.0.0.0:0       //当hostname无法确定显示
+  bool;               --true|false                  1 byte
+  ipv4;               --hostname(0.0.0.0)           4 byte
+                        0.0.0.0         //当hostname无法确定时，显示
+  ipv4_port;          --hostname:port(0.0.0.0:0)    6 byte
+                        0.0.0.0:0       //当hostname无法确定时，显示
                         
-  xipv4_port;         --hostname:port(0.0.0.0:0)
-                        0.0.0.0:0       //当hostname无法确定显示
+  xipv4_port;         --hostname:port(0.0.0.0:0)    6 byte
+                        0.0.0.0:0       //当hostname无法确定时，显示
                                         //字节顺序用于标示port，注意ip的字节与port相反
   float;              --0.0             //无视大小端
-  string;             --00000           //size <= 0时，取剩余所有数据
-  bytes;              --000000          //size <= 0时，取剩余所有数据
+  string;             --00000           //size < 0时，取剩余所有数据
+  bytes;              --000000          //size < 0时，取剩余所有数据
 
   stringz;                              //不接受指定size，遇\0截断(包含\0)，否则取剩余所有数据
 
   //xline表示head不包含自身大小
-  bxline_string;      bline_string;
-  wxline_string;      wline_string;
-  dxline_string;      dline_string;
+  bxline_string;      bline_string;                 1+N byte
+  wxline_string;      wline_string;                 2+N byte
+  dxline_string;      dline_string;                 4+N byte
   
-  bxline_bytes;       bline_bytes;
-  wxline_bytes;       wline_bytes;
-  dxline_bytes;       dline_bytes;
+  bxline_bytes;       bline_bytes;                  1+N byte
+  wxline_bytes;       wline_bytes;                  2+N byte
+  dxline_bytes;       dline_bytes;                  4+N byte
 
-  xdate               --0000/00/00 00:00:00
-  xtime               --00day 00:00:00
-  xcapacity           --0.00T|0.00G|0.00M|0.00K|0.00B
+  xdate               --0000/00/00 00:00:00         4 byte
+  xtime               --00day 00:00:00              4 byte
+  xcapacity           --0.00T|0.00G|0.00M|0.00K|0.00B       N byte需指定
 
   注意，当string或bytes类型数据过大时，会返回第三个数据截断结果，如0000...
 
@@ -1380,6 +1449,8 @@ wireshark扩展版本 4.0
           当func未能识别时，默认使用string
           允许func为FormatEx的子函数名，但如果不是ProtoField的子函数名时，默认仍为string
           但在TreeAddEx时，处理不同
+          如：
+          { "wxline_string", "wxline_msg", "MSG" }  --wxline_msg被处理成string
         --func无视大写，一律转换成小写格式
         --函数自动在表前添加如下默认元素
           {

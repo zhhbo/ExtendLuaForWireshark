@@ -7,44 +7,44 @@
 
 --[=======[
 ●
-  uint8;              --0x00(0)
-  uint16;             --0x0000(0)
-  uint24;             --0x000000(0)
-  uint32;             --0x00000000(0)
-  uint64;             --0x0000000000000000(0)
-  int8;               --0x00(0)
-  int16;              --0x0000(0)
-  int24;              --0x000000(0)
-  int32;              --0x00000000(0)
-  int64;              --0x0000000000000000(0)
+  uint8;              --0x00(0)                     1 byte
+  uint16;             --0x0000(0)                   2 byte
+  uint24;             --0x000000(0)                 3 byte
+  uint32;             --0x00000000(0)               4 byte
+  uint64;             --0x0000000000000000(0)       8 byte
+  int8;               --0x00(0)                     1 byte
+  int16;              --0x0000(0)                   2 byte
+  int24;              --0x000000(0)                 3 byte
+  int32;              --0x00000000(0)               4 byte
+  int64;              --0x0000000000000000(0)       8 byte
 
-  bool;               --true|false
-  ipv4;               --hostname(0.0.0.0)
-                        0.0.0.0         //当hostname无法确定显示
-  ipv4_port;          --hostname:port(0.0.0.0:0)
-                        0.0.0.0:0       //当hostname无法确定显示
+  bool;               --true|false                  1 byte
+  ipv4;               --hostname(0.0.0.0)           4 byte
+                        0.0.0.0         //当hostname无法确定时，显示
+  ipv4_port;          --hostname:port(0.0.0.0:0)    6 byte
+                        0.0.0.0:0       //当hostname无法确定时，显示
                         
-  xipv4_port;         --hostname:port(0.0.0.0:0)
-                        0.0.0.0:0       //当hostname无法确定显示
+  xipv4_port;         --hostname:port(0.0.0.0:0)    6 byte
+                        0.0.0.0:0       //当hostname无法确定时，显示
                                         //字节顺序用于标示port，注意ip的字节与port相反
   float;              --0.0             //无视大小端
-  string;             --00000           //size <= 0时，取剩余所有数据
-  bytes;              --000000          //size <= 0时，取剩余所有数据
+  string;             --00000           //size < 0时，取剩余所有数据
+  bytes;              --000000          //size < 0时，取剩余所有数据
 
   stringz;                              //不接受指定size，遇\0截断(包含\0)，否则取剩余所有数据
 
   //xline表示head不包含自身大小
-  bxline_string;      bline_string;
-  wxline_string;      wline_string;
-  dxline_string;      dline_string;
+  bxline_string;      bline_string;                 1+N byte
+  wxline_string;      wline_string;                 2+N byte
+  dxline_string;      dline_string;                 4+N byte
   
-  bxline_bytes;       bline_bytes;
-  wxline_bytes;       wline_bytes;
-  dxline_bytes;       dline_bytes;
+  bxline_bytes;       bline_bytes;                  1+N byte
+  wxline_bytes;       wline_bytes;                  2+N byte
+  dxline_bytes;       dline_bytes;                  4+N byte
 
-  xdate               --0000/00/00 00:00:00
-  xtime               --00day 00:00:00
-  xcapacity           --0.00T|0.00G|0.00M|0.00K|0.00B
+  xdate               --0000/00/00 00:00:00         4 byte
+  xtime               --00day 00:00:00              4 byte
+  xcapacity           --0.00T|0.00G|0.00M|0.00K|0.00B       N byte需指定
 
   注意，当string或bytes类型数据过大时，会返回第三个数据截断结果，如0000...
 ]=======]

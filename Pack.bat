@@ -33,7 +33,7 @@ rem 合并脚本；提取注释
 for /r %%f in (..\xlualib\Lua\*.lua) do echo     %%f& "%LuaExe%" -e "local file = io.open( [[%%f]], 'r'); local data = file:read('*a'); file:close(); local notes = ''; for note in data:gmatch('%%-%%-%%[=======%%[(.-)%%]=======%%]') do notes = notes .. '\r\n' .. note .. '\r\n'; end   file = io.open( '%DestLua%', 'a+'); file:write( '\r\ndo\r\n' .. data .. '\r\nend\r\n' ); file:close(); file = io.open( '%DestCmt%', 'a+'); file:write( notes ); file:close();"&if not %errorlevel%==0 echo !!!!!!!!合并失败!!!!!!!!&&goto mkerror
 
 echo 合并wireshark ex...
-set wireshark_ex_ver=4.1
+set wireshark_ex_ver=4.2
 echo -->>%DestLua%
 echo wireshark_ex_ver = %wireshark_ex_ver%>>%DestLua%
 echo -->>%DestCmt%

@@ -75,7 +75,7 @@ lauxlib.c
 linit.c
   loadedlibs          添加xlualib初始化
 
-lstrlib.c             添加string.pack、string.unpack功能
+lstrlib.c             添加string.pack、string.unpack功能。有一些适应性修正
 
 luaconf.h
   LUA_UNSIGNED        修改使pack、unpack正确

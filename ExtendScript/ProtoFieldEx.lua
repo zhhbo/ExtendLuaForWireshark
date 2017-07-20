@@ -118,13 +118,13 @@ function ProtoFieldEx( arg1, arg2 )
 
   for _, k in pairs( fs ) do
     local arg = fields[ k ];
-    if #arg[2] > abbr_max then          --abbr必须要有
-      abbr_max = #arg[2];
+    if #arg[ 2 ] > abbr_max then        --abbr必须要有
+      abbr_max = #arg[ 2 ];
     end
-    if arg[3] then                      --name允许没有
-      arg[3] = utf82s( arg[3] );
-      if #arg[3] > name_max then        --处理utf8与ascii的长度差异
-        name_max = #arg[3];
+    if arg[ 3 ] then                    --name允许没有
+      arg[ 3 ] = utf82s( arg[ 3 ] );
+      if #arg[ 3 ] > name_max then      --处理utf8与ascii的长度差异
+        name_max = #arg[ 3 ];
       end
     end
   end

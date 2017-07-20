@@ -17,4 +17,6 @@ dissectors[0x3649] = dissectors.other;
 dissectors[0x3613] = dissectors.other;
 dissectors[0x3625] = dissectors.other;
 
+dissectors[0x5007] = dissectors[0x5006];
+
 return dissectors;

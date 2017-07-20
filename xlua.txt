@@ -1,4 +1,4 @@
-xlua版本 4.2
+xlua版本 6.0
 
 
 -------- -------- -------- --------
@@ -116,8 +116,12 @@ AES解密：不对齐部分不解密，忽略之
 
 
 ●
-    string    strxor          ( string data, int xor );                     [-2, +1, -]
-    string    string:xor      ( int xor );                                  [-1, +1, -]
+    string    strxor          ( string data, int|string xor );              [-2, +1, c]
+    string    string:xor      ( int|string xor );                           [-1, +1, c]
+      --xor因子可以为字符串原始值如"\x12\x34"
+      --当xor因子为数值时，将转换成小端序的字符串原始值，并去除高位00
+      --如0x00001234等价于"\x34\x12"
+      --请不要提供0值，因为没有意义，函数会视为空参数
 
 
 
@@ -131,10 +135,12 @@ AES解密：不对齐部分不解密，忽略之
     int       crc16           ( string data );                              [-1, +1, c]
     int       crc32           ( string data );                              [-1, +1, c]
     int       crc64           ( string data );                              [-1, +1, c]
+    int       crcccitt        ( string data );                              [-1, +1, c]
 
     int       string:crc16    ( );                                          [-0, +1, -]
     int       string:crc32    ( );                                          [-0, +1, -]
     int       string:crc64    ( );                                          [-0, +1, -]
+    int       string:crcccitt ( );                                          [-0, +1, -]
 
 
 
@@ -230,8 +236,7 @@ BLOWFISH解密：不对齐部分不解密，忽略之
                                         string data,
                                         string key
                                         [,
-                                        string ivec = "\0\0\0\0\0\0\0\0",
-                                        int    block_size = 16
+                                        string ivec = "\0\0\0\0\0\0\0\0"
                                         ]
                                         );                            [-2|3|4, +1, c|v]
     string    blowfish.cbc.p7enc        ( ... );                      [-2|3|4, +1, c|v]
@@ -485,50 +490,50 @@ DES解密：不对齐部分不解密，忽略之
 
 
 ●
-    string    str2hexs        (
-                               string   str
+    string    hex2bin         (
+                               string   hex
                                [,
                                bool     errexit       = false,
                                bool     errbreak      = false
                                ]
                                );                                       [-1|2|3, +1, c]
-    string    hex2show        (
+    string    showbin         (
                               string    data
                               [,
-                              int       prews         = 0,
-                              string    code          = "u"|"8"|"a",
-                              bool      isup          = true
+                              int       flag
                               ]
-                              );                                      [-1|2|3|4, +1, c]
-    string    hex2str         (
+                              );                                          [-1|2, +1, c]
+      -- 为了简化参数，设计flag
+      -- flag >= 0x10的部分被当作prews参数
+      -- flag & 1 表示ASCII、flag & 2 表示Unicode、flag & 8 表示UTF8
+      -- flag & 4 表示isup == false
+    string    bin2hex         (
                               string    data
                               [,
                               bool      isup          = false
                               ]
                               );                                          [-1|2, +1, c]
 
-    string    string:str2hexs (
+    string    string:hex2bin  (
                               [
                               bool      errexit       = false,
                               bool      errbreak      = false
                               ]
                               );                                       [-0|1|2, +1, -]
-    string    string:hex2show (
+    string    string:showbin  (
                               [
-                              int       prews         = 0,
-                              string    code          = "u"|"8"|"a",
-                              bool      isup          = true
+                              int       flag
                               ]
-                              );                                      [-0|1|2|3, +1, c]
-    string    string:hex2str  (
+                              );                                          [-1|2, +1, c]
+    string    string:bin2hex  (
                               [
                               bool      isup          = false
                               ]
                               );                                          [-0|1, +1, -]
 
                               
-    string.hexs = string.str2hexs;
-    string.show = string.hex2show;
+    string.bins = string.hex2bin;
+    string.show = string.showbin;
 
 
 
@@ -551,6 +556,21 @@ DES解密：不对齐部分不解密，忽略之
     string    string:ws2utf8  ( );                                          [-0, +1, -]
     string    string:utf82s   ( );                                          [-0, +1, -]
     string    string:s2utf8   ( );                                          [-0, +1, -]
+
+
+
+●
+    string    readfile        (
+                              string filename
+                              [, string mode = "rb" ]
+                              );                                          [-1|2, +1, c]
+    void      writefile       (
+                              string data,
+                              string filename
+                              [, string mode = "wb"]
+                              );                                          [-2|3, +0, c]
+    string    string:read     ( [ string mode = "rb" ] );                 [-0|1, +1, -]
+    void      string:write    ( string filename [, string mode = "wb" ] );[-1|2, +0, -]
 
 
 
@@ -964,8 +984,9 @@ DES解密：不对齐部分不解密，忽略之
     TCP       tcp_new         (
                               string|uint         ip    = "0.0.0.0"
                               string|uint         port  = "0",
-                              string|uint         bind_port = "0"
-                              );                                          [-3, +1, c|v]
+                              string|uint         bind_port = "0",
+                              bool                NonBlockConnect = false
+                              );                                          [-4, +1, c|v]
         
     string ip, string port, uint ip, uint port
               TCP:getsockname ( );                                          [-0, +1, c]
@@ -1000,6 +1021,17 @@ DES解密：不对齐部分不解密，忽略之
         --当提供timeout(毫秒计)时，阻塞指定时间，直到连接发生或超时返回
         --连接发生时，返回新连接的TCP对象
         --超时返回nil, "timeout"
+    bool      TCP:check       ( );                                          [-0, +1, c]
+        --检测NonBlockConnect的TCP是否连接成功（成功后，自动设置阻塞）
+
+
+
+●
+    table, table
+              dns             ( string host );                            [-1, +2, c|v]
+        -- 指定host，解析DNS
+        -- 返回第一个table是ip字符串列表
+        -- 返回第二个table是ip值列表，大端序
 
 
 
@@ -1010,13 +1042,6 @@ DES解密：不对齐部分不解密，忽略之
 
 
 ●
-    void      sleep           ( [int ms = 0] );                           [-0|1, +0, -]
-        --暂停线程ms毫秒，ms允许为空
-
-    int       gettick         ( );                                          [-0, +1, -]
-        --获取系统启动时间毫秒数
-
-        
     void      Sleep           ( [int ms = 0] );                           [-0|1, +0, -]
         --暂停线程ms毫秒，ms允许为空
         
@@ -1328,7 +1353,7 @@ DES解密：不对齐部分不解密，忽略之
     string    string:gzup     ( );        --gzip数据解压缩                  [-0, +1, v]
 
 --
-wireshark扩展版本 4.2
+wireshark扩展版本 4.3
 
 
 -------- -------- -------- --------
@@ -1389,19 +1414,22 @@ wireshark扩展版本 4.2
                         0.0.0.0:0       //当hostname无法确定时，显示
                                         //字节顺序用于标示port，注意ip的字节与port相反
   float;              --0.0             //无视大小端
-  string;             --00000           //size < 0时，取剩余所有数据
-  bytes;              --000000          //size < 0时，取剩余所有数据
+  string;             --00000           //size == -1时，取剩余所有数据
+                                        //注意除了-1，其余负值将出错
+                                        //注意正值超过tvb范围也出错
+                                        //注意size==0，可以故意插入一个tree
+  bytes;              --000000          //size == -1时，取剩余所有数据
 
   stringz;                              //不接受指定size，遇\0截断(包含\0)，否则取剩余所有数据
 
   //xline表示head不包含自身大小
-  bxline_string;      bline_string;                 1+N byte
-  wxline_string;      wline_string;                 2+N byte
-  dxline_string;      dline_string;                 4+N byte
-  
-  bxline_bytes;       bline_bytes;                  1+N byte
-  wxline_bytes;       wline_bytes;                  2+N byte
-  dxline_bytes;       dline_bytes;                  4+N byte
+  bxline_string;      bline_string;                 1 + N byte
+  wxline_string;      wline_string;                 2 + N byte
+  dxline_string;      dline_string;                 4 + N byte
+
+  bxline_bytes;       bline_bytes;                  1 + N byte
+  wxline_bytes;       wline_bytes;                  2 + N byte
+  dxline_bytes;       dline_bytes;                  4 + N byte
 
   xdate               --0000/00/00 00:00:00         4 byte
   xtime               --00day 00:00:00              4 byte
@@ -1491,7 +1519,7 @@ wireshark扩展版本 4.2
                                         );                                 [-4+, +1, v]
         --根据要求自动生成树元素
         --protofieldsex为ProtoFieldEx返回的第一个表
-        --不定参以 short_abbr[, size|format_function], short_abbr, ... 形式提供
+        --不定参以 short_abbr, [size|format_function,] short_abbr, ... 形式提供
           当不提供size或format_function时，使用默认长度
           当指定field未有默认长度时，使用剩余的所有数据
           当指定size <= 0时，跳过不处理
@@ -1526,7 +1554,7 @@ wireshark扩展版本 4.2
           format_function( buf, off, nil, tree_add_func, root, field );
           如果调用内部使用了tree_add_func，应返回off + size
           否则应返回formatted_string, size。
-          处理将在其后自动调用tree_add_func( root, field, buf( off, size), formatted_string );
+          处理将在其后自动调用tree_add_func( root, field, buf( off, size ), formatted_string );
 
         --允许指定abbr_name在protofieldsex中无匹配，此时有如下规则
           --当提供format_function时，函数以如下形式调用

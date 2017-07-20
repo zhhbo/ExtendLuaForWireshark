@@ -28,19 +28,22 @@
                         0.0.0.0:0       //当hostname无法确定时，显示
                                         //字节顺序用于标示port，注意ip的字节与port相反
   float;              --0.0             //无视大小端
-  string;             --00000           //size < 0时，取剩余所有数据
-  bytes;              --000000          //size < 0时，取剩余所有数据
+  string;             --00000           //size == -1时，取剩余所有数据
+                                        //注意除了-1，其余负值将出错
+                                        //注意正值超过tvb范围也出错
+                                        //注意size==0，可以故意插入一个tree
+  bytes;              --000000          //size == -1时，取剩余所有数据
 
   stringz;                              //不接受指定size，遇\0截断(包含\0)，否则取剩余所有数据
 
   //xline表示head不包含自身大小
-  bxline_string;      bline_string;                 1+N byte
-  wxline_string;      wline_string;                 2+N byte
-  dxline_string;      dline_string;                 4+N byte
-  
-  bxline_bytes;       bline_bytes;                  1+N byte
-  wxline_bytes;       wline_bytes;                  2+N byte
-  dxline_bytes;       dline_bytes;                  4+N byte
+  bxline_string;      bline_string;                 1 + N byte
+  wxline_string;      wline_string;                 2 + N byte
+  dxline_string;      dline_string;                 4 + N byte
+
+  bxline_bytes;       bline_bytes;                  1 + N byte
+  wxline_bytes;       wline_bytes;                  2 + N byte
+  dxline_bytes;       dline_bytes;                  4 + N byte
 
   xdate               --0000/00/00 00:00:00         4 byte
   xtime               --00day 00:00:00              4 byte
@@ -365,28 +368,36 @@ function FormatEx.xcapacity( tvb, off, size, func, root )
   local x;
   if func and func ~= root.add then
     x = tvb( off, size ):le_uint64();
+    local f = UInt64.new( 1 );      --修正低版本wireshark只会读8 byte的BUG
+    for k = 1, size do
+      f = f * UInt64.new( 0x100 );
+    end
+    x = x % f;
   else
     x = tvb( off, size ):uint64();
+    for k = 1, 8 - size do
+      x = x / UInt64.new( 0x100 );
+    end
   end
 
   local t = x:higher() / 0x100;
   if t >= 1 then
-    return string.format("%.2f", t) .. " TB", size; 
+    return string.format( "%.2f", t ) .. " TB", size; 
   end
 
   local g = ( x:higher() * 0x10 / 4 ) + ( x:lower() / 0x40000000 );
   if g > 1 then
-    return  string.format("%.2f", g) .. " GB", size; 
+    return  string.format( "%.2f", g ) .. " GB", size; 
   end
 
   local m = x:lower() / 0x100000;
   if m > 1 then
-    return  string.format("%.2f", m) .. " MB", size; 
+    return  string.format( "%.2f", m ) .. " MB", size; 
   end
 
   local k = x:lower() / 0x400;
   if k > 1 then
-    return  string.format("%.2f", k) .. " KB", size; 
+    return  string.format( "%.2f", k ) .. " KB", size; 
   end
-  return  string.format("%.2f", x:lower()) .. " B", size; 
+  return  string.format( "%.2f", x:lower() ) .. " B", size; 
 end

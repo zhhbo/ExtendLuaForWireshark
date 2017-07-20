@@ -16,56 +16,50 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\xlualib\lwinapi.cpp">
+    <ClCompile Include="..\..\xlualib\lzlib.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lxhttp.cpp">
+    <ClCompile Include="..\..\xlualib\xlualib.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lxlog.cpp">
+    <ClCompile Include="..\..\xlualib\laes.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lzlib.cpp">
+    <ClCompile Include="..\..\xlualib\lalgorithm.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\xlualib.cpp">
+    <ClCompile Include="..\..\xlualib\lblowfish.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lalgorithm.cpp">
+    <ClCompile Include="..\..\xlualib\ldes.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lhex_str.cpp">
+    <ClCompile Include="..\..\xlualib\lhex_str.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lmkmem.cpp">
+    <ClCompile Include="..\..\xlualib\lmkmem.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lopenssl.cpp">
+    <ClCompile Include="..\..\xlualib\lopenssl.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lserialcomm.cpp">
+    <ClCompile Include="..\..\xlualib\lpe.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lsock.cpp">
+    <ClCompile Include="..\..\xlualib\lserialcomm.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\ldes.cpp">
+    <ClCompile Include="..\..\xlualib\lsock.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\laes.cpp">
+    <ClCompile Include="..\..\xlualib\lwinapi.cc">
       <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\4210.cpp">
-      <Filter>extend</Filter>
+    <ClCompile Include="..\..\xlualib\lxhttp.cc">
+      <Filter>xlua</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\lapi.c">
-      <Filter>lua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\lauxlib.c">
-      <Filter>lua</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\lbaselib.c">
-      <Filter>lua</Filter>
+    <ClCompile Include="..\..\xlualib\lxlog.cc">
+      <Filter>xlua</Filter>
     </ClCompile>
     <ClCompile Include="..\src\lbitlib.c">
       <Filter>lua</Filter>
@@ -148,64 +142,34 @@
     <ClCompile Include="..\src\lundump.c">
       <Filter>lua</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\lutf8lib.c">
+      <Filter>lua</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\lvm.c">
       <Filter>lua</Filter>
     </ClCompile>
     <ClCompile Include="..\src\lzio.c">
       <Filter>lua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lblowfish.cpp">
-      <Filter>xlua</Filter>
+    <ClCompile Include="..\src\lapi.c">
+      <Filter>lua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\xlualib\lpe.cpp">
-      <Filter>xlua</Filter>
+    <ClCompile Include="..\src\lauxlib.c">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lbaselib.c">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\4210.cc">
+      <Filter>extend</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\xlualib\lalgorithm.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lhex_str.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lmkmem.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lopenssl.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lserialcomm.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lsock.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lwinapi.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lxhttp.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lxlog.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lzlib.h">
-      <Filter>xlua</Filter>
+    <ClInclude Include="resource.h">
+      <Filter>extend</Filter>
     </ClInclude>
     <ClInclude Include="..\..\xlualib\xlualib.h">
       <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\ldes.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\laes.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\lapi.h">
-      <Filter>lua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\lauxlib.h">
-      <Filter>lua</Filter>
     </ClInclude>
     <ClInclude Include="..\src\lcode.h">
       <Filter>lua</Filter>
@@ -243,6 +207,9 @@
     <ClInclude Include="..\src\lparser.h">
       <Filter>lua</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\lprefix.h">
+      <Filter>lua</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\lstate.h">
       <Filter>lua</Filter>
     </ClInclude>
@@ -276,14 +243,11 @@
     <ClInclude Include="..\src\lzio.h">
       <Filter>lua</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>extend</Filter>
+    <ClInclude Include="..\src\lapi.h">
+      <Filter>lua</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xlualib\lblowfish.h">
-      <Filter>xlua</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\xlualib\lpe.h">
-      <Filter>xlua</Filter>
+    <ClInclude Include="..\src\lauxlib.h">
+      <Filter>lua</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

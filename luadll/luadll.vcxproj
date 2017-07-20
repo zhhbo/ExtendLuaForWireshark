@@ -11,22 +11,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\xlualib\laes.cpp" />
-    <ClCompile Include="..\..\xlualib\lalgorithm.cpp" />
-    <ClCompile Include="..\..\xlualib\lblowfish.cpp" />
-    <ClCompile Include="..\..\xlualib\ldes.cpp" />
-    <ClCompile Include="..\..\xlualib\lhex_str.cpp" />
-    <ClCompile Include="..\..\xlualib\lmkmem.cpp" />
-    <ClCompile Include="..\..\xlualib\lopenssl.cpp" />
-    <ClCompile Include="..\..\xlualib\lpe.cpp" />
-    <ClCompile Include="..\..\xlualib\lserialcomm.cpp" />
-    <ClCompile Include="..\..\xlualib\lsock.cpp" />
-    <ClCompile Include="..\..\xlualib\lwinapi.cpp" />
-    <ClCompile Include="..\..\xlualib\lxhttp.cpp" />
-    <ClCompile Include="..\..\xlualib\lxlog.cpp" />
-    <ClCompile Include="..\..\xlualib\lzlib.cpp" />
-    <ClCompile Include="..\..\xlualib\xlualib.cpp" />
-    <ClCompile Include="..\src\4210.cpp" />
+    <ClCompile Include="..\..\xlualib\laes.cc" />
+    <ClCompile Include="..\..\xlualib\lalgorithm.cc" />
+    <ClCompile Include="..\..\xlualib\lblowfish.cc" />
+    <ClCompile Include="..\..\xlualib\ldes.cc" />
+    <ClCompile Include="..\..\xlualib\lhex_str.cc" />
+    <ClCompile Include="..\..\xlualib\lmkmem.cc" />
+    <ClCompile Include="..\..\xlualib\lopenssl.cc" />
+    <ClCompile Include="..\..\xlualib\lpe.cc" />
+    <ClCompile Include="..\..\xlualib\lserialcomm.cc" />
+    <ClCompile Include="..\..\xlualib\lsock.cc" />
+    <ClCompile Include="..\..\xlualib\lwinapi.cc" />
+    <ClCompile Include="..\..\xlualib\lxhttp.cc" />
+    <ClCompile Include="..\..\xlualib\lxlog.cc" />
+    <ClCompile Include="..\..\xlualib\lzlib.cc" />
+    <ClCompile Include="..\..\xlualib\xlualib.cc" />
+    <ClCompile Include="..\4210.cc" />
     <ClCompile Include="..\src\lapi.c" />
     <ClCompile Include="..\src\lauxlib.c" />
     <ClCompile Include="..\src\lbaselib.c" />
@@ -57,24 +57,11 @@
     <ClCompile Include="..\src\ltablib.c" />
     <ClCompile Include="..\src\ltm.c" />
     <ClCompile Include="..\src\lundump.c" />
+    <ClCompile Include="..\src\lutf8lib.c" />
     <ClCompile Include="..\src\lvm.c" />
     <ClCompile Include="..\src\lzio.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\xlualib\laes.h" />
-    <ClInclude Include="..\..\xlualib\lalgorithm.h" />
-    <ClInclude Include="..\..\xlualib\lblowfish.h" />
-    <ClInclude Include="..\..\xlualib\ldes.h" />
-    <ClInclude Include="..\..\xlualib\lhex_str.h" />
-    <ClInclude Include="..\..\xlualib\lmkmem.h" />
-    <ClInclude Include="..\..\xlualib\lopenssl.h" />
-    <ClInclude Include="..\..\xlualib\lpe.h" />
-    <ClInclude Include="..\..\xlualib\lserialcomm.h" />
-    <ClInclude Include="..\..\xlualib\lsock.h" />
-    <ClInclude Include="..\..\xlualib\lwinapi.h" />
-    <ClInclude Include="..\..\xlualib\lxhttp.h" />
-    <ClInclude Include="..\..\xlualib\lxlog.h" />
-    <ClInclude Include="..\..\xlualib\lzlib.h" />
     <ClInclude Include="..\..\xlualib\xlualib.h" />
     <ClInclude Include="..\src\lapi.h" />
     <ClInclude Include="..\src\lauxlib.h" />
@@ -90,6 +77,7 @@
     <ClInclude Include="..\src\lobject.h" />
     <ClInclude Include="..\src\lopcodes.h" />
     <ClInclude Include="..\src\lparser.h" />
+    <ClInclude Include="..\src\lprefix.h" />
     <ClInclude Include="..\src\lstate.h" />
     <ClInclude Include="..\src\lstring.h" />
     <ClInclude Include="..\src\ltable.h" />
@@ -159,7 +147,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_USRDLL;XLUALIB_INSIDE;LUA_BUILD_AS_DLL;LUA_COMPAT_ALL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_USRDLL;XLUALIB_INSIDE;LUA_BUILD_AS_DLL;LUA_COMPAT_ALL;LUA_COMPAT_5_2;LUA_COMPAT_5_1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>true</OmitFramePointers>
       <StringPooling>true</StringPooling>
@@ -189,7 +177,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN64;NDEBUG;_USRDLL;XLUALIB_INSIDE;LUA_BUILD_AS_DLL;LUA_COMPAT_ALL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;NDEBUG;_USRDLL;XLUALIB_INSIDE;LUA_BUILD_AS_DLL;LUA_COMPAT_ALL;LUA_COMPAT_5_2;LUA_COMPAT_5_1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>true</OmitFramePointers>
       <StringPooling>true</StringPooling>

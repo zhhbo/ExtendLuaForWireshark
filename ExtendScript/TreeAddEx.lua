@@ -15,7 +15,7 @@
                                         );                                 [-4+, +1, v]
         --根据要求自动生成树元素
         --protofieldsex为ProtoFieldEx返回的第一个表
-        --不定参以 short_abbr[, size|format_function], short_abbr, ... 形式提供
+        --不定参以 short_abbr, [size|format_function,] short_abbr, ... 形式提供
           当不提供size或format_function时，使用默认长度
           当指定field未有默认长度时，使用剩余的所有数据
           当指定size <= 0时，跳过不处理
@@ -50,7 +50,7 @@
           format_function( buf, off, nil, tree_add_func, root, field );
           如果调用内部使用了tree_add_func，应返回off + size
           否则应返回formatted_string, size。
-          处理将在其后自动调用tree_add_func( root, field, buf( off, size), formatted_string );
+          处理将在其后自动调用tree_add_func( root, field, buf( off, size ), formatted_string );
 
         --允许指定abbr_name在protofieldsex中无匹配，此时有如下规则
           --当提供format_function时，函数以如下形式调用
@@ -126,16 +126,16 @@ local FieldShort =
   S   = "string",
   };
 
-local function TreeAddEx_FormatIt( format_func, tvb, off, size, tree_add_func, root, field, k )
+local function TreeAddEx_FormatIt( format_func, tvb, off, size, tree_add_func, root, field )
   local msg, size, limit_msg = format_func( tvb, off, size, tree_add_func, root, field );
   --如果格式化函数内部处理完毕，则不再继续
   if not size then
     size = msg;
-    return size, k;
+    return size;
   end
   --size不对，也不进行后续处理
   if size < 0 then
-    return off, k;
+    return off;
   end
   --否则进行默认添加
   --如果存在限长结果，则优先采用结果
@@ -145,7 +145,7 @@ local function TreeAddEx_FormatIt( format_func, tvb, off, size, tree_add_func, r
   else
     tree_add_func( root, field, tvb( off, size ), msg );
   end
-  return off + size, k;
+  return off + size;
 end
 
 local function TreeAddEx_AddOne( arg, k, root, tvb, off, protofieldsex )
@@ -192,7 +192,7 @@ local function TreeAddEx_AddOne( arg, k, root, tvb, off, protofieldsex )
   local next_abbr_type = type( next_abbr );
   --如果有指定格式化函数，则使用之
   if next_abbr_type == "function" then
-    return TreeAddEx_FormatIt( next_abbr, tvb, off, nil, tree_add_func, root, field, k + 1 );
+    return TreeAddEx_FormatIt( next_abbr, tvb, off, nil, tree_add_func, root, field ), k + 1;
   end
 
   --开始优先处理可识别的abbr
@@ -208,7 +208,7 @@ local function TreeAddEx_AddOne( arg, k, root, tvb, off, protofieldsex )
       --写在abbr中的format_type优先，其次是exfunc
       format_type = format_type or tb.exfunc;
       if format_type and FormatEx[ format_type ] then
-        return TreeAddEx_FormatIt( FormatEx[ format_type ], tvb, off, abbr_size, tree_add_func, root, field, k + 1 );
+        return TreeAddEx_FormatIt( FormatEx[ format_type ], tvb, off, abbr_size, tree_add_func, root, field ), k + 1;
       end
       tree_add_func( root, field, tvb( off, abbr_size ) );
       return off + abbr_size, k + 1;
@@ -224,7 +224,7 @@ local function TreeAddEx_AddOne( arg, k, root, tvb, off, protofieldsex )
     --写在abbr中的format_type优先，其次是exfunc
     format_type = format_type or tb.exfunc;
     if format_type and FormatEx[ format_type ] then
-      return TreeAddEx_FormatIt( FormatEx[ format_type ], tvb, off, abbr_size, tree_add_func, root, field, k );
+      return TreeAddEx_FormatIt( FormatEx[ format_type ], tvb, off, abbr_size, tree_add_func, root, field ), k;
     end
 
     tree_add_func( root, field, tvb( off ) );
@@ -247,7 +247,7 @@ local function TreeAddEx_AddOne( arg, k, root, tvb, off, protofieldsex )
     k = k + 1;
   end
 
-  return TreeAddEx_FormatIt( format_func, tvb, off, abbr_size, tree_add_func, root, field, k );
+  return TreeAddEx_FormatIt( format_func, tvb, off, abbr_size, tree_add_func, root, field ), k;
 end
 
 function TreeAddEx( protofieldsex, root, tvb, off, ... )

@@ -15,7 +15,7 @@
         --返回第一个表用于与TreeAddEx配合使用，简化元素添加
           {
           ["__fmt"] = fmt;
-          [short_addr] = { type = func, field },
+          [short_addr] = { type, field, exfunc },
           ...
           }
         --返回第二个表用于proto.fields的赋值
@@ -35,7 +35,7 @@
         --对于表中每个元素，函数将为之生成
             field = ProtoField[ func ]( proto_pre_fix .. short_abbr, fix_name, ... );
           当func未能识别时，默认使用string
-          允许func为FormatEx的子函数名，但如果不是ProtoField的子函数名时，默认仍为string
+          允许func为FormatEx的子函数名，但如果不是子函数名时，默认仍为string
           但在TreeAddEx时，处理不同
           如：
           { "wxline_string", "wxline_msg", "MSG" }  --wxline_msg被处理成string
@@ -97,7 +97,7 @@ function ProtoFieldEx( arg1, arg2 )
   --复制，避免后面对原始fields表的修改
   local fs = {};
   for k, t in pairs( fields ) do
-    fs[ k ] = { unpack( t ) };
+    fs[ k ] = { table.unpack( t ) };
   end
   fields = fs;
 
@@ -112,7 +112,7 @@ function ProtoFieldEx( arg1, arg2 )
     fs[ tb[ 2 ] ] = k;
   end
   
-  --先获取abbr与name的最大长度，用于显示对齐
+  --先获取abbr与name的最大长度，用于对齐显示
   local abbr_max = 16;
   local name_max = 16;
 
@@ -148,15 +148,21 @@ function ProtoFieldEx( arg1, arg2 )
     
     local types = func;
     local exfunc;
-    local b, f = pcall( getmetatable( ProtoField )[ "__index" ], ProtoField, types );
-    if b then
+    local f = rawget( ProtoField, types );
+    if f then
       func = f;
     else
       exfunc = types;
       func = ProtoField.string;
       types = "string";
     end
-    local field = func( pre_fix .. abbr, name, select( 4, table.unpack( arg ) ) );
+    
+    local field;
+    if #arg > 3 then
+      field = func( pre_fix .. abbr, name, select( 4, table.unpack( arg ) ) );
+    else
+      field = func( pre_fix .. abbr, name );
+    end
 
     protofields[ abbr ] = field;
     protofieldsex[ abbr ] = { types = types,  field = field, exfunc = exfunc };

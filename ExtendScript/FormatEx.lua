@@ -60,7 +60,7 @@ local function LimitString( str )
 end
 
 FormatEx = { };
-function FormatEx.uint8( tvb, off )
+function FormatEx.uint8( tvb, off, size, func, root )
   local v = tvb( off, 1 ):uint();
   return string.format( "0x%02X(%u)", v, v ), 1;
 end
@@ -101,7 +101,7 @@ function FormatEx.uint64( tvb, off, size, func, root )
   return "0x" .. v:tohex() .. '(' .. v .. ')', 8;
 end
 
-function FormatEx.int8( tvb, off )
+function FormatEx.int8( tvb, off, size, func, root )
   local v = tvb( off, 1 ):int();
   return string.format( "0x%02X(%d)", v, v ), 1;
 end
@@ -165,8 +165,7 @@ function FormatEx.ipv4( tvb, off, size, func, root )
           tvb( off + 2, 1 ):uint() .. '.' ..
           tvb( off + 3, 1 ):uint();
   end
-  local mm = ss:gsub( "[%.%d]", "" );
-  if mm ~= "" then
+  if ss:gsub( "[%.%d]", "" ) ~= "" then
     ss = ss .. '(' .. sss .. ')';
   end
   return ss, 4;
@@ -189,9 +188,8 @@ function FormatEx.ipv4_port( tvb, off, size, func, root )
           tvb( off + 3, 1 ):uint();
     pp = tvb( off + 4, 2 ):uint();
   end
-  local mm = ss:gsub( "[%.%d]", "" );
   ss = ss .. ':' .. pp;
-  if mm ~= "" then
+  if ss:gsub( "[%.%d]", "" ) ~= "" then
     ss = ss .. '(' .. sss .. ':' .. pp .. ')';
   end
   return ss, 4 + 2;
@@ -214,19 +212,18 @@ function FormatEx.xipv4_port( tvb, off, size, func, root )
           tvb( off + 0, 1 ):uint();
     pp = tvb( off + 4, 2 ):uint();
   end
-  local mm = ss:gsub( "[%.%d]", "" );
   ss = ss .. ':' .. pp;
-  if mm ~= "" then
+  if ss:gsub( "[%.%d]", "" ) ~= "" then
     ss = ss .. '(' .. sss .. ':' .. pp .. ')';
   end
   return ss, 4 + 2;
 end
 
-function FormatEx.float( tvb ,off )
+function FormatEx.float( tvb, off, size, func, root )
   return tvb( off, 4 ):float(), 4;
 end
 
-function FormatEx.string( tvb ,off, size )
+function FormatEx.string( tvb, off, size, func, root )
   local ss;
   if size == nil then
     ss = tvb:raw( off );
@@ -237,24 +234,23 @@ function FormatEx.string( tvb ,off, size )
   return ss, #ss, LimitString( ss );
 end
 
-function FormatEx.bytes( tvb, off, size )
+function FormatEx.bytes( tvb, off, size, func, root )
   local ss, size = FormatEx.string( tvb ,off, size );
-  ss = hex2str( ss );
+  ss = bin2hex( ss );
 
   return ss, size, LimitString( ss );
 end
 
-function FormatEx.stringz( tvb, off )
+function FormatEx.stringz( tvb, off, size, func, root )
   local e = off;
   local len = tvb:len();
-  while e < len do
-    if tvb( e, 1 ):uint() == 0 then
-      local size = e - off;
-      return tvb:raw( off, size ), size + 1; 
-    end
-    e = e + 1;
-  end
   local size = len - off;
+  for i = off, len - 1 do
+    if tvb( i, 1 ):uint() == 0 then
+      size = i - off + 1;
+      break;
+    end
+  end
   local ss = tvb:raw( off, size );
   return ss, size, LimitString( ss );
 end
@@ -275,7 +271,7 @@ local function get_line_string( ls, x, tvb, off, size, func, root )
     size = tvb( off, ls ):uint();
   end
 
-  local ss = tvb:raw( off + ls, size - x );;
+  local ss = tvb:raw( off + ls, size - x );
 
   return ss, size + ls - x, string.format( fmt, #ss ) .. LimitString( ss );
 end
@@ -315,7 +311,7 @@ local function get_line_bytes( ls, x, tvb, off, size, func, root )
     size = tvb( off, ls ):uint();
   end
 
-  local ss = tvb:raw( off + ls, size - x ):hex2str();
+  local ss = bin2hex( tvb:raw( off + ls, size - x ) );
 
   return ss, size + ls - x, string.format( fmt, size - x ) .. LimitString( ss );
 end
@@ -357,9 +353,9 @@ function FormatEx.xtime( tvb, off, size, func, root )
     t = tvb( off, 4 ):uint();
   end
 
-  local s = t % 60;   t = math.floor( t / 60 );
-  local m = t % 60;   t = math.floor( t / 60 );
-  local h = t % 24;   t = math.floor( t / 24 );
+  local s = t % 60;   t = t // 60;
+  local m = t % 60;   t = t // 60;
+  local h = t % 24;   t = t // 24;
 
   return t .. "day " .. h .. ":" .. m .. ":" .. s, 4;
 end
@@ -399,5 +395,5 @@ function FormatEx.xcapacity( tvb, off, size, func, root )
   if k > 1 then
     return  string.format( "%.2f", k ) .. " KB", size; 
   end
-  return  string.format( "%.2f", x:lower() ) .. " B", size; 
+  return  string.format( "%d", x:lower() ) .. " B", size; 
 end

@@ -7,11 +7,11 @@
 
 using namespace std;
 
-//借助wireshark加载init.lua，而它加载consloe.lua时，嵌入加载机会
+//借助wireshark主动加载init.lua时，在加载consloe.lua时，嵌入加载机会
 /*
   为什么不采用wireshark自动加载机制？
-    wireshark会自动加载plugins/ver/目录下所有的lua，但它不认utf8格式文件，而中文非得utf8
-    wireshark会枚举所有子目录，这样就无法实现多层次的disscetor了
+    wireshark会自动加载plugins/ver/目录下所有的lua，但这种加载不认utf8格式文件，而中文非得utf8
+    wireshark会枚举所有子目录下的lua并一一加载，这样就无法实现多层次的disscetor了
 */
 extern "C" void load_lua_plugins(lua_State* ls)
   {
@@ -65,7 +65,9 @@ extern "C" void load_lua_plugins(lua_State* ls)
 
     if(LUA_OK != luaL_loadfile(ls, ff.c_str()) || LUA_OK != lua_pcall(ls, 0, LUA_MULTRET, 0))
       {
+      FindClose(hf);
       lua_error(ls);
+      return;
       }
 
     lua_settop(ls, oldtop);
@@ -74,7 +76,9 @@ extern "C" void load_lua_plugins(lua_State* ls)
   }
 
 /*
-lua.h & lapi.c        处理导出
+适配Lua给Wireshark需要修改的部分
+
+lua.h & lapi.c        导出函数使得wireshark定位导入表不出错
   lua_remove
   lua_insert
   lua_replace

@@ -154,16 +154,18 @@ function FormatEx.ipv4( tvb, off, size, func, root )
   local ss, sss;
   if func and func ~= root.add then
     ss = tostring( tvb( off, 4 ):le_ipv4() );
-    sss = tvb( off + 3, 1 ):uint() .. '.' ..
-          tvb( off + 2, 1 ):uint() .. '.' ..
-          tvb( off + 1, 1 ):uint() .. '.' ..
-          tvb( off + 0, 1 ):uint();
+    sss = string.format( "%d.%d.%d.%d", 
+          tvb( off + 3, 1 ):uint(),
+          tvb( off + 2, 1 ):uint(),
+          tvb( off + 1, 1 ):uint(),
+          tvb( off + 0, 1 ):uint());
   else
     ss = tostring( tvb( off, 4 ):ipv4() );
-    sss = tvb( off + 0, 1 ):uint() .. '.' ..
-          tvb( off + 1, 1 ):uint() .. '.' ..
-          tvb( off + 2, 1 ):uint() .. '.' ..
-          tvb( off + 3, 1 ):uint();
+    sss = string.format( "%d.%d.%d.%d", 
+          tvb( off + 0, 1 ):uint(),
+          tvb( off + 1, 1 ):uint(),
+          tvb( off + 2, 1 ):uint(),
+          tvb( off + 3, 1 ):uint());
   end
   if ss:gsub( "[%.%d]", "" ) ~= "" then
     ss = ss .. '(' .. sss .. ')';
@@ -175,22 +177,24 @@ function FormatEx.ipv4_port( tvb, off, size, func, root )
   local ss, sss, pp;
   if func and func ~= root.add then
     ss = tostring( tvb( off, 4 ):le_ipv4() );
-    sss = tvb( off + 3, 1 ):uint() .. '.' ..
-          tvb( off + 2, 1 ):uint() .. '.' ..
-          tvb( off + 1, 1 ):uint() .. '.' ..
-          tvb( off + 0, 1 ):uint();
+    sss = string.format( "%d.%d.%d.%d", 
+          tvb( off + 3, 1 ):uint(),
+          tvb( off + 2, 1 ):uint(),
+          tvb( off + 1, 1 ):uint(),
+          tvb( off + 0, 1 ):uint());
     pp = tvb( off + 4, 2 ):le_uint();
   else
     ss = tostring( tvb( off, 4 ):ipv4() );
-    sss = tvb( off + 0, 1 ):uint() .. '.' ..
-          tvb( off + 1, 1 ):uint() .. '.' ..
-          tvb( off + 2, 1 ):uint() .. '.' ..
-          tvb( off + 3, 1 ):uint();
+    sss = string.format( "%d.%d.%d.%d", 
+          tvb( off + 0, 1 ):uint(),
+          tvb( off + 1, 1 ):uint(),
+          tvb( off + 2, 1 ):uint(),
+          tvb( off + 3, 1 ):uint());
     pp = tvb( off + 4, 2 ):uint();
   end
-  ss = ss .. ':' .. pp;
-  if ss:gsub( "[%.%d]", "" ) ~= "" then
-    ss = ss .. '(' .. sss .. ':' .. pp .. ')';
+  ss = string.format( "%s:%d", ss, pp );
+  if ss:gsub( "[%.%d%:]", "" ) ~= "" then
+    ss = string.format( "%s(%s:%d)", ss, sss, pp );
   end
   return ss, 4 + 2;
 end
@@ -199,22 +203,24 @@ function FormatEx.xipv4_port( tvb, off, size, func, root )
   local ss, sss, pp;
   if func and func ~= root.add then
     ss = tostring( tvb( off, 4 ):ipv4() );
-    sss = tvb( off + 0, 1 ):uint() .. '.' ..
-          tvb( off + 1, 1 ):uint() .. '.' ..
-          tvb( off + 2, 1 ):uint() .. '.' ..
-          tvb( off + 3, 1 ):uint();
+    sss = string.format( "%d.%d.%d.%d", 
+          tvb( off + 0, 1 ):uint(),
+          tvb( off + 1, 1 ):uint(),
+          tvb( off + 2, 1 ):uint(),
+          tvb( off + 3, 1 ):uint());
     pp = tvb( off + 4, 2 ):le_uint();
   else
     ss = tostring( tvb( off, 4 ):le_ipv4() );
-    sss = tvb( off + 3, 1 ):uint() .. '.' ..
-          tvb( off + 2, 1 ):uint() .. '.' ..
-          tvb( off + 1, 1 ):uint() .. '.' ..
-          tvb( off + 0, 1 ):uint();
+    sss = string.format( "%d.%d.%d.%d", 
+          tvb( off + 3, 1 ):uint(),
+          tvb( off + 2, 1 ):uint(),
+          tvb( off + 1, 1 ):uint(),
+          tvb( off + 0, 1 ):uint());
     pp = tvb( off + 4, 2 ):uint();
   end
-  ss = ss .. ':' .. pp;
-  if ss:gsub( "[%.%d]", "" ) ~= "" then
-    ss = ss .. '(' .. sss .. ':' .. pp .. ')';
+  ss = string.format( "%s:%d", ss, pp );
+  if ss:gsub( "[%.%d%:]", "" ) ~= "" then
+    ss = string.format( "%s(%s:%d)", ss, sss, pp );
   end
   return ss, 4 + 2;
 end
@@ -357,7 +363,7 @@ function FormatEx.xtime( tvb, off, size, func, root )
   local m = t % 60;   t = t // 60;
   local h = t % 24;   t = t // 24;
 
-  return t .. "day " .. h .. ":" .. m .. ":" .. s, 4;
+  return string.format( "%dday %d:%d:%d", t, h, m, s), 4;
 end
 
 function FormatEx.xcapacity( tvb, off, size, func, root )

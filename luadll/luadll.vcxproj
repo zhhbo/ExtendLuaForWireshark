@@ -11,22 +11,54 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\xlualib\laes.cc" />
-    <ClCompile Include="..\..\xlualib\lalgorithm.cc" />
-    <ClCompile Include="..\..\xlualib\lblowfish.cc" />
-    <ClCompile Include="..\..\xlualib\ldes.cc" />
-    <ClCompile Include="..\..\xlualib\lhex_str.cc" />
-    <ClCompile Include="..\..\xlualib\lmkmem.cc" />
-    <ClCompile Include="..\..\xlualib\lopenssl.cc" />
-    <ClCompile Include="..\..\xlualib\lpe.cc" />
-    <ClCompile Include="..\..\xlualib\lserialcomm.cc" />
-    <ClCompile Include="..\..\xlualib\lsock.cc" />
-    <ClCompile Include="..\..\xlualib\lwinapi.cc" />
-    <ClCompile Include="..\..\xlualib\lxhttp.cc" />
-    <ClCompile Include="..\..\xlualib\lxlog.cc" />
-    <ClCompile Include="..\..\xlualib\lzlib.cc" />
-    <ClCompile Include="..\..\xlualib\xlualib.cc" />
-    <ClCompile Include="..\4210.cc" />
+    <ClCompile Include="..\..\xlualib\laes.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lalgorithm.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lblowfish.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\ldes.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lhex_str.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lmkmem.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lopenssl.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lpe.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lserialcomm.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lsock.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lwinapi.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lxhttp.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lxlog.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\lzlib.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\xlualib\xlualib.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\4210.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\src\lapi.c" />
     <ClCompile Include="..\src\lauxlib.c" />
     <ClCompile Include="..\src\lbaselib.c" />
@@ -92,7 +124,9 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="luadll.rc" />
+    <ResourceCompile Include="luadll.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ExtendScript\AnalysisLevel.lua" />

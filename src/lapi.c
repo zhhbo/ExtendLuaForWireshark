@@ -244,19 +244,51 @@ LUA_API void lua_pushvalue (lua_State *L, int idx) {
 //////////////////////////////////////////////////////////////////////////
 LUA_API void  (lua_remove)(lua_State *L, int idx)
   {
-  lua_rotate(L, (idx), -1);
-  lua_pop(L, 1);
+//   lua_rotate(L, (idx), -1);
+//   lua_pop(L, 1);
+  StkId p;
+  lua_lock(L);
+  p = index2addr(L, idx);
+  api_checkstackindex(L, idx, p);
+  while(++p < L->top) setobjs2s(L, p - 1, p);
+  L->top--;
+  lua_unlock(L);
   }
 
 LUA_API void  (lua_insert)(lua_State *L, int idx)
   {
-  lua_rotate(L, (idx), 1);
+//  lua_rotate(L, (idx), 1);
+  StkId p;
+  StkId q;
+  lua_lock(L);
+  p = index2addr(L, idx);
+  api_checkstackindex(L, idx, p);
+  for(q = L->top; q > p; q--)  /* use L->top as a temporary */
+    setobjs2s(L, q, q - 1);
+  setobjs2s(L, p, L->top);
+  lua_unlock(L);
+  }
+
+static void moveto(lua_State *L, TValue *fr, int idx)
+  {
+  TValue *to = index2addr(L, idx);
+  api_checkvalidindex(L, to);
+  setobj(L, to, fr);
+  if(idx < LUA_REGISTRYINDEX)  /* function upvalue? */
+    luaC_barrier(L, clCvalue(L->ci->func), fr);
+  /* LUA_REGISTRYINDEX does not need gc barrier
+  (collector revisits it before finishing collection) */
   }
 
 LUA_API void  (lua_replace)(lua_State *L, int idx)
   {
-  lua_copy(L, -1, (idx));
-  lua_pop(L, 1);
+//   lua_copy(L, -1, (idx));
+//   lua_pop(L, 1);
+  lua_lock(L);
+  api_checknelems(L, 1);
+  moveto(L, L->top - 1, idx);
+  L->top--;
+  lua_unlock(L);
   }
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

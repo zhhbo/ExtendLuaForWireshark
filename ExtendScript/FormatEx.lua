@@ -371,7 +371,7 @@ function FormatEx.xcapacity( tvb, off, size, func, root )
   if func and func ~= root.add then
     x = tvb( off, size ):le_uint64();
     local f = UInt64.new( 1 );      --修正低版本wireshark只会读8 byte的BUG
-    for k = 1, size do
+    for k = 1, size % 8 do
       f = f * UInt64.new( 0x100 );
     end
     x = x % f;

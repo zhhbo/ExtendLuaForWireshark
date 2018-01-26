@@ -177,7 +177,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN64;NDEBUG;_USRDLL;XLUALIB_INSIDE;LUA_BUILD_AS_DLL;LUA_COMPAT_ALL;LUA_COMPAT_5_2;LUA_COMPAT_5_1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;NDEBUG;_USRDLL;XLUALIB_INSIDE;LUA_BUILD_AS_DLL;LUA_COMPAT_ALL;LUA_COMPAT_5_2;LUA_COMPAT_5_1;HARDMEMTESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <OmitFramePointers>true</OmitFramePointers>
       <StringPooling>true</StringPooling>

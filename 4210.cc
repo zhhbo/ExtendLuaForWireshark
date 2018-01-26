@@ -48,7 +48,7 @@ extern "C" void load_lua_plugins(lua_State* ls)
   //附加加载路径
   lua_settop(ls, oldtop);
   xmsg cmd;
-  cmd << "package.path = package.path .. [[;" << path << "?.lua]];";
+  cmd << "package.path = package.path .. [[;" << path << "?.lua]];collectgarbage([[setpause]], 100);";
   luaL_dostring(ls, cmd.c_str());
   lua_settop(ls, oldtop);
 

@@ -782,14 +782,12 @@ DES解密：不对齐部分不解密，忽略之
     string    string:sha                ( [int algo] );                   [-0|1, +1, c]
 
     --以下是SHA便捷函数组
-    string    sha0                      ( string  data );                   [-1, +1, c]
     string    sha1                      ( string  data );                   [-1, +1, c]
     string    sha224                    ( string  data );                   [-1, +1, c]
     string    sha256                    ( string  data );                   [-1, +1, c]
     string    sha384                    ( string  data );                   [-1, +1, c]
     string    sha512                    ( string  data );                   [-1, +1, c]
 
-    string    string:sha0               ( );                                [-0, +1, c]
     string    string:sha1               ( );                                [-0, +1, c]
     string    string:sha224             ( );                                [-0, +1, c]
     string    string:sha256             ( );                                [-0, +1, c]
@@ -803,7 +801,7 @@ DES解密：不对齐部分不解密，忽略之
                                         string    key,
                                         string    algo
                                         );                                  [-3, +1, c]
-        --hmac支持的algo有"sha512/sha256/sha1/md5/sha224/sha384/sha"
+        --hmac支持的algo有"sha512/sha256/sha1/md5/sha224/sha384"
     string    string:hmac               ( string key, string algo );        [-2, +1, c]
 
 
@@ -945,8 +943,10 @@ DES解密：不对齐部分不解密，忽略之
                               string|uint         bind_port = "0"
                               ]
                               );                                    [-0|1|2|3, +1, c|v]
-        --当ip == "0.0.0.0"且port != "0"时，绑定指定端口
-        --当ip != "0.0.0.0"时，默认连接指定IP，此时，启用bind_port为绑定端口
+        --bind_port不为0时，无视ip、port，直接绑定本地端口
+        --当ip == "0.0.0.0"且port != "0"时，视为bind_port = port，也绑定指定端口
+        --当ip != "0.0.0.0"时，将与指定IP通讯
+        --当不绑定本地端口时，默认接收延时5s
         
     string ip, string port, uint ip, uint port
               UDP:getsockname ( );                                          [-0, +1, c]
@@ -963,8 +963,8 @@ DES解密：不对齐部分不解密，忽略之
     string    UDP:__tostring  ( );                                          [-0, +1, c]
         --返回UDP{server/client}:########    local_ip:port >> link_ip:port
         
-    UDP       UDP:settimeout  ( int timeout );                              [-1, +1, v]
-        --接收延时，毫秒计
+    UDP       UDP:settimeout  ( int timeout = -1 );                       [-0|1, +1, v]
+        --接收延时，毫秒计（默认取消延时）
 
     UDP       UDP:broadcast   ( bool set );                                 [-1, +1, v]
         --广播设置
@@ -983,6 +983,7 @@ DES解密：不对齐部分不解密，忽略之
         --当不提供size时，默认提供0x800的接收缓冲区
         --超时返回nil, "timeout"
         --接收缓冲区不足返回nil, "msgsize"
+        --目标不可达返回nil, "unreachable"
 
 
 
@@ -996,6 +997,10 @@ DES解密：不对齐部分不解密，忽略之
                               string|uint         bind_port = "0",
                               bool                NonBlockConnect = false
                               );                                          [-4, +1, c|v]
+        --bind_port不为0时，无视ip、port，直接绑定本地端口
+        --当ip == "0.0.0.0"且port != "0"时，视为bind_port = port，也绑定指定端口
+        --当ip != "0.0.0.0"时，将与指定IP通讯
+        --当不绑定本地端口时，默认接收延时5s
         
     string ip, string port, uint ip, uint port
               TCP:getsockname ( );                                          [-0, +1, c]
@@ -1012,20 +1017,20 @@ DES解密：不对齐部分不解密，忽略之
     string    TCP:__tostring  ( );                                          [-0, +1, c]
         --返回TCP{server/client}:########    local_ip:port >> link_ip:port
         
-    TCP       TCP:settimeout  ( int timeout );                              [-1, +1, v]
-        --接收延时，毫秒计。Server不支持
+    TCP       TCP:settimeout  ( int timeout = -1 );                         [-1, +1, v]
+        --接收延时，毫秒计。默认取消延时。Server不支持此函数。
 
     TCP       TCP:broadcast   ( bool set );                                 [-1, +1, v]
-        --广播设置。Server不支持
+        --广播设置。Server不支持此函数
 
     TCP       TCP:send        ( string data );                            [-1, +1, c|v]
-        --发送数据。Server不支持
+        --发送数据。Server不支持此函数
         
     string    TCP:recv        ( [ int size = 0x800 ] );               [-0|1, +1|2, c|v]
         --当不提供size时，默认提供0x800的接收缓冲区
-        --超时返回nil, "timeout"。Server不支持
+        --超时返回nil, "timeout"。Server不支持此函数
     TCP       TCP:accept      ( [ int timeout == -1 ]);                 [-0|1, +1|2, v]
-        --Client不支持
+        --Client不支持此函数
         --当不提供timeout时，默认超时值-1，即阻塞直到连接发生
         --当提供timeout(毫秒计)时，阻塞指定时间，直到连接发生或超时返回
         --连接发生时，返回新连接的TCP对象
@@ -1041,6 +1046,14 @@ DES解密：不对齐部分不解密，忽略之
         -- 指定host，解析DNS
         -- 返回第一个table是ip字符串列表
         -- 返回第二个table是ip值列表，大端序
+
+
+
+●
+    string    transip         ( int ip, bool little_endian );               [-1, +1, v]
+        -- 显示示例：127.0.0.1
+    string    transip         ( string ip, bool little_endian );            [-1, +1, v]
+        -- 显示示例：0x7F000001
 
 
 
